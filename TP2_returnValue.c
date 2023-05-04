@@ -5,20 +5,29 @@
 
 int main() {
   pid_t pid;
+  int status, child_value;
   
   pid = fork();
   
   if (pid < 0) {
-    fprintf(stderr, "Failed to create child process\n");
+    fprintf(stderr, "Failed to create child\n");
     exit(1);
   } else if (pid == 0) {
-    printf("Child process (PID %d) exiting\n", getpid());
-    exit(0);
+    printf("Child (PID %d) running\n", getpid());
+    int value;
+    printf("entrer valeur : ");
+    scanf("%d", &value);
+    exit(value);
   } else {
-    printf("Parent process (PID %d) created child process (PID %d)\n", getpid(), pid);
-    sleep(10); // wait 10 seconds
-    wait(NULL); // clean up child process exit status
-    printf("Parent process (PID %d) exiting\n", getpid());
+    printf("Parent (PID %d) waiting for child (PID %d)\n", getpid(), pid);
+    wait(&status);
+    if (WIFEXITED(status)) {
+      child_value = WEXITSTATUS(status);
+      printf("Parent (PID %d) received value %d from child (PID %d)\n", getpid(), child_value, pid);
+    } else {
+      printf("error");
+    }
+    printf("Parent (PID %d) exiting\n", getpid());
     exit(0);
   }
 }
